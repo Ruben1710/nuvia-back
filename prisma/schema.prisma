@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  slug      String   @unique
+  nameEn    String   @map("name_en")
+  nameRu    String   @map("name_ru")
+  nameArm   String   @map("name_arm")
+  img       String?  @map("img")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  products  Product[]
+  works     Work[]
+
+  @@map("categories")
+}
+
+model Product {
+  id                  Int      @id @default(autoincrement())
+  categoryId          Int      @map("category_id")
+  nameEn              String   @map("name_en")
+  nameRu              String   @map("name_ru")
+  nameArm             String   @map("name_arm")
+  descriptionEn       String?  @map("description_en") @db.Text
+  descriptionRu       String?  @map("description_ru") @db.Text
+  descriptionArm      String?  @map("description_arm") @db.Text
+  price               Int
+  images              Json?    @default("[]")
+  sliderDescriptionEn String?  @map("slider_description_en") @db.Text
+  sliderDescriptionRu String?  @map("slider_description_ru") @db.Text
+  sliderDescriptionArm String? @map("slider_description_arm") @db.Text
+  filters             Json?    @default("{}")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  category            Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@map("products")
+}
+
+model Work {
+  id            Int      @id @default(autoincrement())
+  categoryId    Int      @map("category_id")
+  titleEn       String   @map("title_en")
+  titleRu       String   @map("title_ru")
+  titleArm      String   @map("title_arm")
+  descriptionEn String?  @map("description_en") @db.Text
+  descriptionRu String?  @map("description_ru") @db.Text
+  descriptionArm String? @map("description_arm") @db.Text
+  photo         String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  category      Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@map("works")
+}
+
